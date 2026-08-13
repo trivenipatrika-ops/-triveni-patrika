@@ -20,5 +20,23 @@ export default defineType({
   ],
   orderings: [
     { title: "नई पहले", name: "publishedAtDesc", by: [{ field: "publishedAt", direction: "desc" }] }
-  ]
+  ],
+  preview: {
+    select: {
+      title: "title",
+      media: "mainImage",
+      category: "category.title",
+      date: "publishedAt"
+    },
+    prepare(selection) {
+      const { title, media, category, date } = selection;
+      return {
+        title,
+        subtitle: [category, date ? new Date(date).toLocaleDateString("hi-IN") : ""]
+          .filter(Boolean)
+          .join(" · "),
+        media
+      };
+    }
+  }
 });
