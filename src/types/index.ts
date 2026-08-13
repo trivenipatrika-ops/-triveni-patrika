@@ -9,13 +9,22 @@ export type SanityImageSource = {
   alt?: string;
 };
 
+export type Author = {
+  name: string;
+  image?: SanityImageSource;
+  bio?: string;
+  role?: string;
+};
+
 export type Post = {
   _id: string;
   title: string;
   slug: string;
   mainImage?: SanityImageSource;
   excerpt?: string;
+  body?: any[];
+  videoUrl?: string;
   publishedAt: string;
   category?: { title: string; slug: string };
-  author?: { name: string };
+  author?: Author;
 };
