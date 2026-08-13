@@ -47,3 +47,24 @@ export async function getFeaturedPost(categorySlug?: string): Promise<Post | nul
     groq`*[_type == "post" && isFeatured == true] | order(publishedAt desc)[0] { ${postFields} }`
   );
 }
+
+export async function getPostBySlug(slug: string): Promise<Post | null> {
+  return client.fetch(
+    groq`*[_type == "post" && slug.current == $slug][0] {
+      _id, title, "slug": slug.current, mainImage, excerpt, body, videoUrl, publishedAt,
+      category->{title, "slug": slug.current},
+      author->{name, image, bio, role}
+    }`,
+    { slug }
+  );
+}
+
+export async function getRelatedPosts(
+  categorySlug: string,
+  excludeId: string
+): Promise<Post[]> {
+  return client.fetch(
+    groq`*[_type == "post" && category->slug.current == $categorySlug && _id != $excludeId] | order(publishedAt desc)[0...4] { ${postFields} }`,
+    { categorySlug, excludeId }
+  );
+}
