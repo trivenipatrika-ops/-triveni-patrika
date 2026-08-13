@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  h1, h2, h3, .headline {
+    font-family: var(--font-headline);
+  }
+}
+
+@layer utilities {
+  .hairline {
+    border-color: theme('colors.rule');
+  }
+  .ticker-track {
+    animation: ticker 28s linear infinite;
+  }
+  @keyframes ticker {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+}
