@@ -18,10 +18,12 @@ export const revalidate = 60;
 export default async function CategoryPage({
   params,
 }: {
-  params: { category: string };
+  params: Promise<{ category: string }>;
 }) {
+  const { category: categorySlug } = await params;
+
   const categories = await getCategories();
-  const category = categories.find((c) => c.slug === params.category);
+  const category = categories.find((c) => c.slug === categorySlug);
 
   if (!category) {
     notFound();
@@ -29,8 +31,8 @@ export default async function CategoryPage({
 
   const [breaking, posts, featuredFromQuery] = await Promise.all([
     getBreakingPosts(),
-    getPosts(params.category),
-    getFeaturedPost(params.category),
+    getPosts(categorySlug),
+    getFeaturedPost(categorySlug),
   ]);
 
   const featured = featuredFromQuery || posts[0];
@@ -39,10 +41,10 @@ export default async function CategoryPage({
   return (
     <>
       <Header />
-      <CategoryNav categories={categories} activeSlug={params.category} />
+      <CategoryNav categories={categories} activeSlug={categorySlug} />
       <BreakingTicker items={breaking.map((b) => b.title)} />
       <main className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-[220px_1fr] gap-8 px-4 py-6">
-        <Sidebar categories={categories} activeSlug={params.category} />
+        <Sidebar categories={categories} activeSlug={categorySlug} />
         <div>
           <h1 className="font-headline text-xl font-bold mb-4 text-ink">
             {category!.title}
