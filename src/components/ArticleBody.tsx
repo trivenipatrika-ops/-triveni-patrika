@@ -14,6 +14,36 @@ const components: PortableTextComponents = {
         />
       </div>
     ),
+    pullQuote: ({ value }) => (
+      <blockquote className="my-8 border-l-4 border-accent bg-accent/5 px-5 py-4">
+        <p className="font-headline italic text-xl leading-snug text-ink">
+          “{value.quote}”
+        </p>
+        {value.attribution && (
+          <footer className="mt-2 text-sm text-ink/60">
+            — {value.attribution}
+          </footer>
+        )}
+      </blockquote>
+    ),
+  },
+  marks: {
+    highlightRed: ({ children }) => (
+      <span className="text-accent font-semibold">{children}</span>
+    ),
+    highlightBlue: ({ children }) => (
+      <span className="text-blue-700 font-semibold">{children}</span>
+    ),
+    link: ({ value, children }) => (
+      <a
+        href={value?.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-accent underline"
+      >
+        {children}
+      </a>
+    ),
   },
   block: {
     h2: ({ children }) => (
