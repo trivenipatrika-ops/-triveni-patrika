@@ -12,7 +12,58 @@ export default defineType({
     defineField({ name: "author", title: "रिपोर्टर", type: "reference", to: [{ type: "author" }] }),
     defineField({ name: "city", title: "शहर/जिला", type: "string", initialValue: "प्रयागराज" }),
     defineField({ name: "excerpt", title: "संक्षिप्त सार (लिस्ट में दिखेगा)", type: "text", rows: 3 }),
-    defineField({ name: "body", title: "पूरी खबर", type: "array", of: [{ type: "block" }, { type: "image", options: { hotspot: true } }] }),
+    defineField({
+      name: "body",
+      title: "पूरी खबर",
+      type: "array",
+      of: [
+        {
+          type: "block",
+          styles: [
+            { title: "सामान्य", value: "normal" },
+            { title: "उपशीर्षक", value: "h2" },
+          ],
+          marks: {
+            decorators: [
+              { title: "Bold", value: "strong" },
+              { title: "Italic", value: "em" },
+              { title: "🔴 लाल हाईलाइट", value: "highlightRed" },
+              { title: "🔵 नीला हाईलाइट", value: "highlightBlue" },
+            ],
+            annotations: [
+              {
+                name: "link",
+                type: "object",
+                title: "लिंक",
+                fields: [{ name: "href", title: "URL", type: "url" }],
+              },
+            ],
+          },
+        },
+        { type: "image", options: { hotspot: true } },
+        {
+          type: "object",
+          name: "pullQuote",
+          title: "🗨️ विशेष टिप्पणी / उद्धरण",
+          fields: [
+            {
+              name: "quote",
+              title: "टिप्पणी/उद्धरण",
+              type: "text",
+              rows: 3,
+              validation: (r) => r.required(),
+            },
+            { name: "attribution", title: "किसने कहा (वैकल्पिक)", type: "string" },
+          ],
+          preview: {
+            select: { title: "quote" },
+            prepare({ title }: { title?: string }) {
+              return { title: `🗨️ ${title || ""}` };
+            },
+          },
+        },
+      ],
+    }),
     defineField({ name: "videoUrl", title: "YouTube वीडियो लिंक (वैकल्पिक)", type: "url" }),
     defineField({ name: "isBreaking", title: "🔴 ब्रेकिंग न्यूज़ है?", type: "boolean", initialValue: false }),
     defineField({ name: "isFeatured", title: "⭐ हाईलाइट खबर है?", type: "boolean", initialValue: false }),
