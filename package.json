@@ -17,6 +17,7 @@
     "@sanity/image-url": "^1.1.0",
     "@sanity/vision": "^3.68.0",
     "@portabletext/react": "^3.2.0",
+    "@react-pdf/renderer": "^4.1.6",
     "mongodb": "^6.10.0",
     "web-push": "^3.6.7"
   },
