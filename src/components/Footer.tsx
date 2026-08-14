@@ -11,6 +11,7 @@ export default function Footer() {
           प्रयागराज से शुरू, स्थानीय और सच्ची खबरों का भरोसेमंद स्रोत।
         </p>
         <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-white/70">
+          <Link href="/epaper">ई-पेपर</Link>
           <Link href="/about">हमारे बारे में</Link>
           <Link href="/contact">संपर्क करें</Link>
           <Link href="/privacy">गोपनीयता नीति</Link>
