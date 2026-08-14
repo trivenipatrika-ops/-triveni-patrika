@@ -68,3 +68,32 @@ export async function getRelatedPosts(
     { categorySlug, excludeId }
   );
 }
+
+export type Epaper = {
+  _id: string;
+  date: string;
+  title?: string;
+  pdfUrl?: string;
+  coverImageUrl?: string;
+};
+
+export async function getEpapers(): Promise<Epaper[]> {
+  return client.fetch(
+    groq`*[_type == "epaper"] | order(date desc) {
+      _id, date, title,
+      "pdfUrl": pdfFile.asset->url,
+      "coverImageUrl": coverImage.asset->url
+    }`
+  );
+}
+
+export async function getEpaperByDate(date: string): Promise<Epaper | null> {
+  return client.fetch(
+    groq`*[_type == "epaper" && date == $date][0] {
+      _id, date, title,
+      "pdfUrl": pdfFile.asset->url,
+      "coverImageUrl": coverImage.asset->url
+    }`,
+    { date }
+  );
+}
