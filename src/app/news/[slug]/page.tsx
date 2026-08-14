@@ -15,8 +15,15 @@ export const revalidate = 60;
 
 function extractPlainText(blocks: any[] = []): string {
   return blocks
-    .filter((b) => b._type === "block")
-    .map((b) => (b.children || []).map((c: any) => c.text).join(""))
+    .map((b) => {
+      if (b._type === "block") {
+        return (b.children || []).map((c: any) => c.text).join("");
+      }
+      if (b._type === "pullQuote") {
+        return b.quote || "";
+      }
+      return "";
+    })
     .join(" ");
 }
 
