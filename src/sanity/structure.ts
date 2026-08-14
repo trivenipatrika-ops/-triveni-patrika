@@ -14,6 +14,14 @@ export const structure: StructureResolver = (S) =>
             .defaultOrdering([{ field: "publishedAt", direction: "desc" }])
         ),
       S.listItem()
+        .id("epapers")
+        .title("📰 ई-पेपर अंक")
+        .child(
+          S.documentTypeList("epaper")
+            .title("ई-पेपर अंक")
+            .defaultOrdering([{ field: "date", direction: "desc" }])
+        ),
+      S.listItem()
         .id("categories")
         .title("🏷️ श्रेणियाँ")
         .child(S.documentTypeList("category").title("श्रेणियाँ")),
