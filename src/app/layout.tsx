@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Noto_Serif_Devanagari, Noto_Sans_Devanagari } from "next/font/google";
 import NotificationPrompt from "@/components/NotificationPrompt";
+import PwaNavBar from "@/components/PwaNavBar";
 import "./globals.css";
 
 const headlineFont = Noto_Serif_Devanagari({
@@ -38,6 +39,7 @@ export default function RootLayout({
       <body
         className={`${headlineFont.variable} ${bodyFont.variable} font-body bg-paper text-ink`}
       >
+        <PwaNavBar />
         <NotificationPrompt />
         {children}
       </body>
