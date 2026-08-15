@@ -7,7 +7,16 @@ export default defineType({
   fields: [
     defineField({ name: "title", title: "शीर्षक", type: "string", validation: (r) => r.required() }),
     defineField({ name: "slug", title: "URL Slug", type: "slug", options: { source: "title", maxLength: 96 }, validation: (r) => r.required() }),
-    defineField({ name: "mainImage", title: "मुख्य फोटो", type: "image", options: { hotspot: true }, fields: [{ name: "alt", title: "फोटो का विवरण (Alt text)", type: "string" }] }),
+    defineField({
+      name: "mainImage",
+      title: "मुख्य फोटो",
+      type: "image",
+      options: { hotspot: true },
+      fields: [
+        { name: "alt", title: "फोटो का विवरण (Alt text)", type: "string" },
+        { name: "caption", title: "फोटो कैप्शन (फोटो के नीचे दिखेगा, वैकल्पिक)", type: "string" },
+      ],
+    }),
     defineField({ name: "category", title: "श्रेणी", type: "reference", to: [{ type: "category" }], validation: (r) => r.required() }),
     defineField({ name: "author", title: "रिपोर्टर", type: "reference", to: [{ type: "author" }] }),
     defineField({ name: "city", title: "शहर/जिला", type: "string", initialValue: "प्रयागराज" }),
@@ -40,7 +49,14 @@ export default defineType({
             ],
           },
         },
-        { type: "image", options: { hotspot: true } },
+        {
+          type: "image",
+          options: { hotspot: true },
+          fields: [
+            { name: "alt", title: "फोटो का विवरण (Alt text)", type: "string" },
+            { name: "caption", title: "फोटो कैप्शन (वैकल्पिक)", type: "string" },
+          ],
+        },
         {
           type: "object",
           name: "pullQuote",
