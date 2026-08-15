@@ -5,17 +5,24 @@ import { urlFor } from "@/sanity/image";
 const components: PortableTextComponents = {
   types: {
     image: ({ value }) => (
-      <div className="relative w-full aspect-[4/3] my-6 bg-rule">
-        <Image
-          src={urlFor(value).width(1000).url()}
-          alt={value.alt || ""}
-          fill
-          className="object-cover"
-        />
-        <span className="absolute bottom-2 left-2 bg-masthead/90 text-white text-[10px] font-bold px-2 py-0.5 tracking-wide">
-          त्रिवेणी पत्रिका
-        </span>
-      </div>
+      <figure className="my-6">
+        <div className="relative w-full aspect-[4/3] bg-rule">
+          <Image
+            src={urlFor(value).width(1000).url()}
+            alt={value.alt || ""}
+            fill
+            className="object-cover"
+          />
+          <span className="absolute bottom-2 left-2 bg-masthead/90 text-white text-[10px] font-bold px-2 py-0.5 tracking-wide">
+            त्रिवेणी पत्रिका
+          </span>
+        </div>
+        {value.caption && (
+          <figcaption className="text-xs text-ink/50 italic mt-2 border-l-2 border-accent pl-2">
+            {value.caption} — फोटो: त्रिवेणी पत्रिका
+          </figcaption>
+        )}
+      </figure>
     ),
     pullQuote: ({ value }) => (
       <div className="my-8 border-2 border-accent">
