@@ -54,6 +54,12 @@ export default defineType({
               validation: (r) => r.required(),
             },
             { name: "attribution", title: "किसने कहा (वैकल्पिक)", type: "string" },
+            {
+              name: "photo",
+              title: "फोटो (वैकल्पिक, बगल में दिखेगी)",
+              type: "image",
+              options: { hotspot: true },
+            },
           ],
           preview: {
             select: { title: "quote" },
