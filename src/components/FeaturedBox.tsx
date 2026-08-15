@@ -11,7 +11,7 @@ export default function FeaturedBox({ post }: { post: Post }) {
 
   return (
     <Link href={`/news/${post.slug}`} className="block mb-8 group">
-      {post.mainImage && (
+      {post.mainImage?.asset && (
         <div className="relative aspect-[16/9] w-full overflow-hidden bg-rule">
           <Image
             src={urlFor(post.mainImage).width(1200).height(675).url()}
