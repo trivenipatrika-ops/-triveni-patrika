@@ -14,7 +14,7 @@ export default function NewsCard({ post }: { post: Post }) {
       href={`/news/${post.slug}`}
       className="flex gap-3 border-b border-rule pb-4 mb-4 group"
     >
-      {post.mainImage && (
+      {post.mainImage?.asset && (
         <div className="relative w-28 h-20 shrink-0 overflow-hidden bg-rule">
           <Image
             src={urlFor(post.mainImage).width(200).height(140).url()}
