@@ -72,9 +72,42 @@ export default defineType({
             { name: "attribution", title: "किसने कहा (वैकल्पिक)", type: "string" },
             {
               name: "photo",
-              title: "फोटो (वैकल्पिक, बगल में दिखेगी)",
+              title: "फोटो (वैकल्पिक — सिर्फ डिज़ाइन 1 में दिखेगी)",
               type: "image",
               options: { hotspot: true },
+            },
+            {
+              name: "color",
+              title: "बॉक्स का रंग",
+              type: "string",
+              options: {
+                list: [
+                  { title: "🔴 लाल", value: "red" },
+                  { title: "🔵 नीला", value: "blue" },
+                  { title: "🟢 हरा", value: "green" },
+                  { title: "🟠 नारंगी", value: "orange" },
+                  { title: "🟣 बैंगनी", value: "purple" },
+                  { title: "⚫ गहरा नेवी", value: "navy" },
+                ],
+                layout: "radio",
+              },
+              initialValue: "red",
+            },
+            {
+              name: "style",
+              title: "बॉक्स का डिज़ाइन",
+              type: "string",
+              options: {
+                list: [
+                  { title: "1️⃣ बॉर्डर बॉक्स (फोटो के साथ)", value: "box" },
+                  { title: "2️⃣ क्लासिक लाइन (अमर उजाला जैसा)", value: "diagonal" },
+                  { title: "3️⃣ साइड लाइन", value: "underline" },
+                  { title: "4️⃣ वर्टिकल बार", value: "sidebar" },
+                  { title: "5️⃣ मिनिमल (सिर्फ इटैलिक)", value: "minimal" },
+                  { title: "6️⃣ भरा हुआ रंग (Solid)", value: "solid" },
+                ],
+              },
+              initialValue: "box",
             },
           ],
           preview: {
