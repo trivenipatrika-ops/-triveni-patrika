@@ -20,6 +20,9 @@ export default function FeaturedBox({ post }: { post: Post }) {
             priority
             className="object-cover"
           />
+          <span className="absolute bottom-2 left-2 bg-masthead/90 text-white text-[10px] font-bold px-2 py-0.5 tracking-wide">
+            त्रिवेणी पत्रिका
+          </span>
         </div>
       )}
       <div className="border-t-4 border-masthead mt-3 pt-2">
