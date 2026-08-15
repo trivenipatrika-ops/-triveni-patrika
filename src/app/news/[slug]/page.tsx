@@ -140,6 +140,9 @@ export default async function ArticlePage({
               priority
               className="object-cover"
             />
+            <span className="absolute bottom-2 left-2 bg-masthead/90 text-white text-[10px] font-bold px-2 py-0.5 tracking-wide">
+              त्रिवेणी पत्रिका
+            </span>
           </div>
         )}
 
