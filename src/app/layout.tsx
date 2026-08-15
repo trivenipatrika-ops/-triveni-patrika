@@ -24,6 +24,10 @@ export const metadata: Metadata = {
     title: "त्रिवेणी पत्रिका",
     statusBarStyle: "default",
   },
+  icons: {
+    icon: "/api/pwa-icon?size=192",
+    apple: "/api/pwa-icon?size=180",
+  },
 };
 
 export const viewport: Viewport = {
