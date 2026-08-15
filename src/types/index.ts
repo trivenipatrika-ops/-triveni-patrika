@@ -7,6 +7,7 @@ export type Category = {
 export type SanityImageSource = {
   asset?: { _ref: string; _type: string };
   alt?: string;
+  caption?: string;
 };
 
 export type Author = {
