@@ -132,18 +132,25 @@ export default async function ArticlePage({
         </div>
 
         {post!.mainImage && (
-          <div className="relative w-full aspect-[16/9] my-6 bg-rule">
-            <Image
-              src={urlFor(post!.mainImage).width(1200).height(675).url()}
-              alt={post!.mainImage.alt || post!.title}
-              fill
-              priority
-              className="object-cover"
-            />
-            <span className="absolute bottom-2 left-2 bg-masthead/90 text-white text-[10px] font-bold px-2 py-0.5 tracking-wide">
-              त्रिवेणी पत्रिका
-            </span>
-          </div>
+          <figure className="my-6">
+            <div className="relative w-full aspect-[16/9] bg-rule">
+              <Image
+                src={urlFor(post!.mainImage).width(1200).height(675).url()}
+                alt={post!.mainImage.alt || post!.title}
+                fill
+                priority
+                className="object-cover"
+              />
+              <span className="absolute bottom-2 left-2 bg-masthead/90 text-white text-[10px] font-bold px-2 py-0.5 tracking-wide">
+                त्रिवेणी पत्रिका
+              </span>
+            </div>
+            {post!.mainImage.caption && (
+              <figcaption className="text-xs text-ink/50 italic mt-2 border-l-2 border-accent pl-2">
+                {post!.mainImage.caption} — फोटो: त्रिवेणी पत्रिका
+              </figcaption>
+            )}
+          </figure>
         )}
 
         {post!.videoUrl && <VideoEmbed url={post!.videoUrl} />}
