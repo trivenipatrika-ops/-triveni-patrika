@@ -36,7 +36,7 @@ export async function generateMetadata({
   const post = await getPostBySlug(slug);
   if (!post) return {};
 
-  const imageUrl = post.mainImage
+  const imageUrl = post.mainImage?.asset
     ? urlFor(post.mainImage).width(1200).height(630).url()
     : undefined;
 
@@ -90,7 +90,9 @@ export default async function ArticlePage({
     "@context": "https://schema.org",
     "@type": "NewsArticle",
     headline: post!.title,
-    image: post!.mainImage ? [urlFor(post!.mainImage).width(1200).url()] : [],
+    image: post!.mainImage?.asset
+      ? [urlFor(post!.mainImage).width(1200).url()]
+      : [],
     datePublished: post!.publishedAt,
     author: post!.author?.name
       ? [{ "@type": "Person", name: post!.author.name }]
@@ -131,7 +133,7 @@ export default async function ArticlePage({
           <ListenButton text={speechText} />
         </div>
 
-        {post!.mainImage && (
+        {post!.mainImage?.asset && (
           <figure className="my-6">
             <div className="relative w-full aspect-[16/9] bg-rule">
               <Image
