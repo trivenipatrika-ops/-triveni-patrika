@@ -39,11 +39,26 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://triveni-patrika.vercel.app";
+
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "NewsMediaOrganization",
+    name: "त्रिवेणी पत्रिका",
+    url: siteUrl,
+    logo: `${siteUrl}/api/pwa-icon?size=512`,
+  };
+
   return (
     <html lang="hi">
       <body
         className={`${headlineFont.variable} ${bodyFont.variable} font-body bg-paper text-ink`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        />
         <PwaNavBar />
         <NotificationPrompt />
         <InstallButton />
