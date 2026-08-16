@@ -7,6 +7,7 @@ import ListenButton from "@/components/ListenButton";
 import ShareButtons from "@/components/ShareButtons";
 import VideoEmbed from "@/components/VideoEmbed";
 import ArticleBody from "@/components/ArticleBody";
+import PullQuote from "@/components/PullQuote";
 import RelatedNews from "@/components/RelatedNews";
 import { getPostBySlug, getRelatedPosts } from "@/sanity/queries";
 import { urlFor } from "@/sanity/image";
@@ -15,15 +16,8 @@ export const revalidate = 60;
 
 function extractPlainText(blocks: any[] = []): string {
   return blocks
-    .map((b) => {
-      if (b._type === "block") {
-        return (b.children || []).map((c: any) => c.text).join("");
-      }
-      if (b._type === "pullQuote") {
-        return b.quote || "";
-      }
-      return "";
-    })
+    .filter((b) => b._type === "block")
+    .map((b) => (b.children || []).map((c: any) => c.text).join(""))
     .join(" ");
 }
 
@@ -48,6 +42,7 @@ export async function generateMetadata({
       description: post.excerpt,
       type: "article",
       publishedTime: post.publishedAt,
+      modifiedTime: post._updatedAt || post.publishedAt,
       images: imageUrl ? [imageUrl] : [],
     },
     twitter: {
@@ -82,25 +77,38 @@ export default async function ArticlePage({
     month: "long",
     year: "numeric",
   });
-  const speechText = `${post!.title}. ${post!.excerpt || ""}. ${extractPlainText(
-    post!.body
-  )}`;
+  const speechText = `${post!.title}. ${post!.excerpt || ""}. ${
+    post!.pullQuote?.quote ? post!.pullQuote.quote + ". " : ""
+  }${extractPlainText(post!.body)}`;
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
     headline: post!.title,
+    description: post!.excerpt || "",
     image: post!.mainImage?.asset
       ? [urlFor(post!.mainImage).width(1200).url()]
       : [],
     datePublished: post!.publishedAt,
+    dateModified: post!._updatedAt || post!.publishedAt,
     author: post!.author?.name
       ? [{ "@type": "Person", name: post!.author.name }]
       : [],
     publisher: {
       "@type": "Organization",
       name: "त्रिवेणी पत्रिका",
+      logo: {
+        "@type": "ImageObject",
+        url: `${siteUrl}/api/pwa-icon?size=512`,
+        width: 512,
+        height: 512,
+      },
     },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": pageUrl,
+    },
+    isAccessibleForFree: "True",
   };
 
   return (
@@ -154,6 +162,8 @@ export default async function ArticlePage({
             )}
           </figure>
         )}
+
+        {post!.pullQuote && <PullQuote value={post!.pullQuote} />}
 
         {post!.videoUrl && <VideoEmbed url={post!.videoUrl} />}
 
