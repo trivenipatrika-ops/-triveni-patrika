@@ -6,15 +6,24 @@ import FeaturedBox from "@/components/FeaturedBox";
 import NewsGrid from "@/components/NewsGrid";
 import Footer from "@/components/Footer";
 import { getCategories, getBreakingPosts, getPosts } from "@/sanity/queries";
+import type { Category, Post } from "@/types";
 
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [categories, breaking, posts] = await Promise.all([
-    getCategories(),
-    getBreakingPosts(),
-    getPosts(),
-  ]);
+  let categories: Category[] = [];
+  let breaking: { title: string }[] = [];
+  let posts: Post[] = [];
+
+  try {
+    [categories, breaking, posts] = await Promise.all([
+      getCategories(),
+      getBreakingPosts(),
+      getPosts(),
+    ]);
+  } catch (error) {
+    // Sanity से डेटा न मिले तो भी पेज खाली दिखे, टूटे नहीं
+  }
 
   const featured = posts[0];
   const rest = posts.slice(1);
