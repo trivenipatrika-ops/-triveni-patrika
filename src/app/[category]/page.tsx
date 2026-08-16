@@ -12,6 +12,7 @@ import {
   getPosts,
   getFeaturedPost,
 } from "@/sanity/queries";
+import type { Category, Post } from "@/types";
 
 export const revalidate = 60;
 
@@ -22,18 +23,31 @@ export default async function CategoryPage({
 }) {
   const { category: categorySlug } = await params;
 
-  const categories = await getCategories();
-  const category = categories.find((c) => c.slug === categorySlug);
+  let categories: Category[] = [];
+  try {
+    categories = await getCategories();
+  } catch (error) {
+    categories = [];
+  }
 
+  const category = categories.find((c) => c.slug === categorySlug);
   if (!category) {
     notFound();
   }
 
-  const [breaking, posts, featuredFromQuery] = await Promise.all([
-    getBreakingPosts(),
-    getPosts(categorySlug),
-    getFeaturedPost(categorySlug),
-  ]);
+  let breaking: { title: string }[] = [];
+  let posts: Post[] = [];
+  let featuredFromQuery: Post | null = null;
+
+  try {
+    [breaking, posts, featuredFromQuery] = await Promise.all([
+      getBreakingPosts(),
+      getPosts(categorySlug),
+      getFeaturedPost(categorySlug),
+    ]);
+  } catch (error) {
+    // Sanity से डेटा न मिले तो भी पेज खाली दिखे, टूटे नहीं
+  }
 
   const featured = featuredFromQuery || posts[0];
   const rest = posts.filter((p) => p._id !== featured?._id);
