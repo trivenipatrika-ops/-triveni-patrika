@@ -22,6 +22,54 @@ export default defineType({
     defineField({ name: "city", title: "शहर/जिला", type: "string", initialValue: "प्रयागराज" }),
     defineField({ name: "excerpt", title: "संक्षिप्त सार (लिस्ट में दिखेगा)", type: "text", rows: 3 }),
     defineField({
+      name: "pullQuote",
+      title: "🗨️ विशेष टिप्पणी / उद्धरण (वैकल्पिक)",
+      type: "object",
+      fields: [
+        { name: "quote", title: "टिप्पणी/उद्धरण", type: "text", rows: 3 },
+        { name: "attribution", title: "किसने कहा (वैकल्पिक)", type: "string" },
+        {
+          name: "photo",
+          title: "फोटो (वैकल्पिक — सिर्फ डिज़ाइन 1 में दिखेगी)",
+          type: "image",
+          options: { hotspot: true },
+        },
+        {
+          name: "color",
+          title: "बॉक्स का रंग",
+          type: "string",
+          options: {
+            list: [
+              { title: "🔴 लाल", value: "red" },
+              { title: "🔵 नीला", value: "blue" },
+              { title: "🟢 हरा", value: "green" },
+              { title: "🟠 नारंगी", value: "orange" },
+              { title: "🟣 बैंगनी", value: "purple" },
+              { title: "⚫ गहरा नेवी", value: "navy" },
+            ],
+            layout: "radio",
+          },
+          initialValue: "red",
+        },
+        {
+          name: "style",
+          title: "बॉक्स का डिज़ाइन",
+          type: "string",
+          options: {
+            list: [
+              { title: "1️⃣ बॉर्डर बॉक्स (फोटो के साथ)", value: "box" },
+              { title: "2️⃣ क्लासिक लाइन (अमर उजाला जैसा)", value: "diagonal" },
+              { title: "3️⃣ साइड लाइन", value: "underline" },
+              { title: "4️⃣ वर्टिकल बार", value: "sidebar" },
+              { title: "5️⃣ मिनिमल (सिर्फ इटैलिक)", value: "minimal" },
+              { title: "6️⃣ भरा हुआ रंग (Solid)", value: "solid" },
+            ],
+          },
+          initialValue: "box",
+        },
+      ],
+    }),
+    defineField({
       name: "body",
       title: "पूरी खबर",
       type: "array",
@@ -56,66 +104,6 @@ export default defineType({
             { name: "alt", title: "फोटो का विवरण (Alt text)", type: "string" },
             { name: "caption", title: "फोटो कैप्शन (वैकल्पिक)", type: "string" },
           ],
-        },
-        {
-          type: "object",
-          name: "pullQuote",
-          title: "🗨️ विशेष टिप्पणी / उद्धरण",
-          fields: [
-            {
-              name: "quote",
-              title: "टिप्पणी/उद्धरण",
-              type: "text",
-              rows: 3,
-              validation: (r) => r.required(),
-            },
-            { name: "attribution", title: "किसने कहा (वैकल्पिक)", type: "string" },
-            {
-              name: "photo",
-              title: "फोटो (वैकल्पिक — सिर्फ डिज़ाइन 1 में दिखेगी)",
-              type: "image",
-              options: { hotspot: true },
-            },
-            {
-              name: "color",
-              title: "बॉक्स का रंग",
-              type: "string",
-              options: {
-                list: [
-                  { title: "🔴 लाल", value: "red" },
-                  { title: "🔵 नीला", value: "blue" },
-                  { title: "🟢 हरा", value: "green" },
-                  { title: "🟠 नारंगी", value: "orange" },
-                  { title: "🟣 बैंगनी", value: "purple" },
-                  { title: "⚫ गहरा नेवी", value: "navy" },
-                ],
-                layout: "radio",
-              },
-              initialValue: "red",
-            },
-            {
-              name: "style",
-              title: "बॉक्स का डिज़ाइन",
-              type: "string",
-              options: {
-                list: [
-                  { title: "1️⃣ बॉर्डर बॉक्स (फोटो के साथ)", value: "box" },
-                  { title: "2️⃣ क्लासिक लाइन (अमर उजाला जैसा)", value: "diagonal" },
-                  { title: "3️⃣ साइड लाइन", value: "underline" },
-                  { title: "4️⃣ वर्टिकल बार", value: "sidebar" },
-                  { title: "5️⃣ मिनिमल (सिर्फ इटैलिक)", value: "minimal" },
-                  { title: "6️⃣ भरा हुआ रंग (Solid)", value: "solid" },
-                ],
-              },
-              initialValue: "box",
-            },
-          ],
-          preview: {
-            select: { title: "quote" },
-            prepare({ title }: { title?: string }) {
-              return { title: `🗨️ ${title || ""}` };
-            },
-          },
         },
       ],
     }),
