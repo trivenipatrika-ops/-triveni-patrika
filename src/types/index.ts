@@ -17,15 +17,25 @@ export type Author = {
   role?: string;
 };
 
+export type PullQuoteValue = {
+  quote?: string;
+  attribution?: string;
+  photo?: SanityImageSource;
+  color?: string;
+  style?: string;
+};
+
 export type Post = {
   _id: string;
   title: string;
   slug: string;
   mainImage?: SanityImageSource;
   excerpt?: string;
+  pullQuote?: PullQuoteValue;
   body?: any[];
   videoUrl?: string;
   publishedAt: string;
+  _updatedAt?: string;
   category?: { title: string; slug: string };
   author?: Author;
 };
