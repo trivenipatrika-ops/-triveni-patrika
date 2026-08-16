@@ -51,7 +51,7 @@ export async function getFeaturedPost(categorySlug?: string): Promise<Post | nul
 export async function getPostBySlug(slug: string): Promise<Post | null> {
   return client.fetch(
     groq`*[_type == "post" && slug.current == $slug][0] {
-      _id, title, "slug": slug.current, mainImage, excerpt, body, videoUrl, publishedAt,
+      _id, title, "slug": slug.current, mainImage, excerpt, pullQuote, body, videoUrl, publishedAt, _updatedAt,
       category->{title, "slug": slug.current},
       author->{name, image, bio, role}
     }`,
