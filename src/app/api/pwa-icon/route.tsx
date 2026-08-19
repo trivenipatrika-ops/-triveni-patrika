@@ -25,6 +25,7 @@ export async function GET(req: NextRequest) {
   const size = parseInt(searchParams.get("size") || "512", 10);
 
   const fontData = await fetchGoogleFontTTF("Noto Sans Devanagari", 700);
+  const ringWidth = Math.max(4, Math.round(size * 0.035));
 
   return new ImageResponse(
     (
@@ -35,24 +36,26 @@ export async function GET(req: NextRequest) {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#8A1418",
+          background: "#FAF8F2",
         }}
       >
         <div
           style={{
-            width: "72%",
-            height: "72%",
+            width: "88%",
+            height: "88%",
+            borderRadius: "50%",
+            background: "#8A1418",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: "#FAF8F2",
-            borderRadius: size * 0.14,
+            border: `${ringWidth}px solid #FAF8F2`,
+            boxShadow: "0 0 0 " + Math.max(2, Math.round(size * 0.012)) + "px #8A1418",
           }}
         >
           <span
             style={{
-              color: "#8A1418",
-              fontSize: size * 0.42,
+              color: "#FFFFFF",
+              fontSize: size * 0.36,
               fontFamily: "NotoDevanagari",
             }}
           >
