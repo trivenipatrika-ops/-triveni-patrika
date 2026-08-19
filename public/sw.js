@@ -18,8 +18,8 @@ self.addEventListener("push", (event) => {
 
   const options = {
     body: data.body,
-    icon: "/icon-192.png",
-    badge: "/icon-192.png",
+    icon: "/api/pwa-icon?size=192",
+    badge: "/api/pwa-icon?size=96",
     data: { url: data.url || "/" },
   };
 
