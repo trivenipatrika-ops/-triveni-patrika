@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { hindiSlugify } from "../hindiSlugify";
 
 export default defineType({
   name: "post",
@@ -6,7 +7,13 @@ export default defineType({
   type: "document",
   fields: [
     defineField({ name: "title", title: "शीर्षक", type: "string", validation: (r) => r.required() }),
-    defineField({ name: "slug", title: "URL Slug", type: "slug", options: { source: "title", maxLength: 96 }, validation: (r) => r.required() }),
+    defineField({
+      name: "slug",
+      title: "URL Slug",
+      type: "slug",
+      options: { source: "title", maxLength: 96, slugify: hindiSlugify },
+      validation: (r) => r.required(),
+    }),
     defineField({
       name: "mainImage",
       title: "मुख्य फोटो",
