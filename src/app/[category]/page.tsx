@@ -16,12 +16,28 @@ import type { Category, Post } from "@/types";
 
 export const revalidate = 60;
 
+function safeDecode(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+function safeEncode(value: string): string {
+  try {
+    return encodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 export default async function CategoryPage({
   params,
 }: {
   params: Promise<{ category: string }>;
 }) {
-  const { category: categorySlug } = await params;
+  const { category: rawCategorySlug } = await params;
 
   let categories: Category[] = [];
   try {
@@ -30,10 +46,17 @@ export default async function CategoryPage({
     categories = [];
   }
 
-  const category = categories.find((c) => c.slug === categorySlug);
+  const decoded = safeDecode(rawCategorySlug);
+  const encoded = safeEncode(rawCategorySlug);
+  const category = categories.find(
+    (c) => c.slug === rawCategorySlug || c.slug === decoded || c.slug === encoded
+  );
+
   if (!category) {
     notFound();
   }
+
+  const categorySlug = category!.slug;
 
   let breaking: { title: string }[] = [];
   let posts: Post[] = [];
