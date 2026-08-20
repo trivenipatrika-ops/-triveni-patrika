@@ -2,6 +2,22 @@ import { groq } from "next-sanity";
 import { client } from "./client";
 import type { Category, Post } from "@/types";
 
+function safeDecode(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+function safeEncode(value: string): string {
+  try {
+    return encodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 export async function getCategories(): Promise<Category[]> {
   return client.fetch(
     groq`*[_type == "category"] | order(order asc) {
@@ -48,7 +64,7 @@ export async function getFeaturedPost(categorySlug?: string): Promise<Post | nul
   );
 }
 
-export async function getPostBySlug(slug: string): Promise<Post | null> {
+async function fetchPostBySlugExact(slug: string): Promise<Post | null> {
   return client.fetch(
     groq`*[_type == "post" && slug.current == $slug][0] {
       _id, title, "slug": slug.current, mainImage, excerpt, pullQuote, body, videoUrl, publishedAt, _updatedAt,
@@ -57,6 +73,20 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
     }`,
     { slug }
   );
+}
+
+// हिंदी/यूनिकोड स्लग किसी भी रूप (raw, decoded, encoded) में आए, तब भी सही खबर मिल जाए
+export async function getPostBySlug(slug: string): Promise<Post | null> {
+  const candidates = Array.from(
+    new Set([slug, safeDecode(slug), safeEncode(slug)])
+  );
+
+  for (const candidate of candidates) {
+    const post = await fetchPostBySlugExact(candidate);
+    if (post) return post;
+  }
+
+  return null;
 }
 
 export async function getRelatedPosts(
