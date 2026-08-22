@@ -7,7 +7,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     process.env.NEXT_PUBLIC_SITE_URL || "https://triveni-patrika.vercel.app";
 
   const posts: { slug: string; publishedAt: string }[] = await client.fetch(
-    groq`*[_type == "post"]{ "slug": slug.current, publishedAt }`
+    groq`*[_type == "post"] | order(publishedAt desc)[0...5000]{ "slug": slug.current, publishedAt }`
   );
 
   const categories: { slug: string }[] = await client.fetch(
@@ -20,15 +20,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${siteUrl}/contact`, lastModified: new Date() },
     { url: `${siteUrl}/privacy`, lastModified: new Date() },
     { url: `${siteUrl}/terms`, lastModified: new Date() },
+    { url: `${siteUrl}/epaper`, lastModified: new Date() },
   ];
 
   const categoryPages: MetadataRoute.Sitemap = categories.map((c) => ({
-    url: `${siteUrl}/${c.slug}`,
+    url: `${siteUrl}/${encodeURIComponent(c.slug)}`,
     lastModified: new Date(),
   }));
 
   const postPages: MetadataRoute.Sitemap = posts.map((p) => ({
-    url: `${siteUrl}/news/${p.slug}`,
+    url: `${siteUrl}/news/${encodeURIComponent(p.slug)}`,
     lastModified: new Date(p.publishedAt),
   }));
 
