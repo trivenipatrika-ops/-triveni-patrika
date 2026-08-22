@@ -30,6 +30,10 @@ export async function generateMetadata({
   const post = await getPostBySlug(slug);
   if (!post) return {};
 
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://triveni-patrika.vercel.app";
+  const pageUrl = `${siteUrl}/news/${encodeURIComponent(post.slug)}`;
+
   const imageUrl = post.mainImage?.asset
     ? urlFor(post.mainImage).width(1200).height(630).url()
     : undefined;
@@ -41,6 +45,7 @@ export async function generateMetadata({
       title: post.title,
       description: post.excerpt,
       type: "article",
+      url: pageUrl,
       publishedTime: post.publishedAt,
       modifiedTime: post._updatedAt || post.publishedAt,
       images: imageUrl ? [imageUrl] : [],
@@ -71,7 +76,7 @@ export default async function ArticlePage({
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://triveni-patrika.vercel.app";
-  const pageUrl = `${siteUrl}/news/${post!.slug}`;
+  const pageUrl = `${siteUrl}/news/${encodeURIComponent(post!.slug)}`;
   const dateStr = new Date(post!.publishedAt).toLocaleDateString("hi-IN", {
     day: "numeric",
     month: "long",
