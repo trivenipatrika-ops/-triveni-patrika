@@ -41,6 +41,15 @@ export default function Sidebar({
           </li>
         ))}
       </ul>
+
+      <div className="mt-6 pt-4 border-t border-rule">
+        <Link
+          href="/epaper"
+          className="flex items-center gap-1.5 text-sm font-bold text-accent"
+        >
+          📰 ई-पेपर
+        </Link>
+      </div>
     </aside>
   );
 }
