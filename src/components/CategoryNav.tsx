@@ -37,6 +37,11 @@ export default function CategoryNav({
             </Link>
           </li>
         ))}
+        <li className="py-3">
+          <Link href="/epaper" className="text-accent inline-block">
+            📰 ई-पेपर
+          </Link>
+        </li>
       </ul>
     </nav>
   );
