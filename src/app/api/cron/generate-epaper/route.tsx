@@ -3,6 +3,8 @@ import { renderToBuffer, Document, Page, Text } from "@react-pdf/renderer";
 import { groq } from "next-sanity";
 import { client } from "@/sanity/client";
 import { writeClient } from "@/sanity/writeClient";
+import { getDb } from "@/lib/mongodb";
+import webpush from "@/lib/webPush";
 import { EpaperDocument, ensureEpaperFonts } from "@/lib/generateEpaperPdf";
 
 export const runtime = "nodejs";
@@ -25,6 +27,34 @@ async function fetchRecentPosts(hours: number): Promise<LightPost[]> {
   );
 }
 
+async function notifySubscribers(todayISO: string) {
+  try {
+    const db = await getDb();
+    const subscribers = await db.collection("subscribers").find({}).toArray();
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || "https://triveni-patrika.vercel.app";
+    const payload = JSON.stringify({
+      title: "📰 आज का ई-पेपर तैयार है",
+      body: "त्रिवेणी पत्रिका का आज का पूरा अंक पढ़ने के लिए टैप करें",
+      url: `${siteUrl}/epaper/${todayISO}`,
+    });
+
+    await Promise.all(
+      subscribers.map(async (sub: any) => {
+        try {
+          await webpush.sendNotification(sub, payload);
+        } catch (err: any) {
+          if (err.statusCode === 404 || err.statusCode === 410) {
+            await db.collection("subscribers").deleteOne({ _id: sub._id });
+          }
+        }
+      })
+    );
+  } catch (notifyError) {
+    // नोटिफिकेशन भेजने में गड़बड़ी हो तो भी अंक तो बन ही चुका है
+  }
+}
+
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -41,11 +71,9 @@ export async function GET(req: NextRequest) {
   try {
     await ensureEpaperFonts();
 
-    // 1) पिछले 24 घंटे
     let posts: LightPost[] = await fetchRecentPosts(24);
     let noteLine = "";
 
-    // 2) न मिलें तो पिछले 7 दिन
     if (posts.length === 0) {
       posts = await fetchRecentPosts(24 * 7);
       if (posts.length > 0) {
@@ -53,7 +81,6 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // 3) फिर भी न मिलें तो वेबसाइट की सबसे ताज़ा 10 खबरें, तारीख की परवाह किए बिना
     if (posts.length === 0) {
       posts = await client.fetch(
         groq`*[_type == "post"] | order(publishedAt desc)[0...10]{
@@ -80,7 +107,6 @@ export async function GET(req: NextRequest) {
         categoryTitle: p.category?.title,
       }));
     } else {
-      // 4) वेबसाइट पर कभी कोई खबर ही नहीं — फिर भी एक "स्वागत अंक" बने
       lead = {
         title: "त्रिवेणी पत्रिका जल्द शुरू हो रही है",
         excerpt: "यहां जल्द ही ताज़ा खबरें प्रकाशित की जाएंगी।",
@@ -98,7 +124,6 @@ export async function GET(req: NextRequest) {
         />
       );
     } catch (renderError) {
-      // पूरी डिज़ाइन वाला PDF न बन पाए तो भी एक बेहद सादा PDF ज़रूर बने
       pdfBuffer = await renderToBuffer(
         <Document>
           <Page size="A4" style={{ padding: 40 }}>
@@ -143,6 +168,8 @@ export async function GET(req: NextRequest) {
       });
     }
 
+    await notifySubscribers(todayISO);
+
     return NextResponse.json({
       success: true,
       date: todayISO,
@@ -150,7 +177,6 @@ export async function GET(req: NextRequest) {
       note: noteLine || undefined,
     });
   } catch (error: any) {
-    // बिल्कुल आखिरी सहारा — कुछ भी हो जाए, कम से कम एक खाली-सा अंक ज़रूर बने
     try {
       const fallbackBuffer = await renderToBuffer(
         <Document>
@@ -177,6 +203,7 @@ export async function GET(req: NextRequest) {
         },
         generatedAutomatically: true,
       });
+      await notifySubscribers(todayISO);
       return NextResponse.json({ success: true, fallback: true, date: todayISO });
     } catch (fatalError: any) {
       return NextResponse.json(
