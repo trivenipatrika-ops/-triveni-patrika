@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import CategoryNav from "@/components/CategoryNav";
 import BreakingTicker from "@/components/BreakingTicker";
+import EpaperBanner from "@/components/EpaperBanner";
 import Sidebar from "@/components/Sidebar";
 import FeaturedBox from "@/components/FeaturedBox";
 import NewsGrid from "@/components/NewsGrid";
@@ -33,6 +34,7 @@ export default async function HomePage() {
       <Header />
       <CategoryNav categories={categories} activeSlug={null} />
       <BreakingTicker items={breaking.map((b) => b.title)} />
+      <EpaperBanner />
       <main className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-[220px_1fr] gap-8 px-4 py-6">
         <Sidebar categories={categories} activeSlug={null} />
         <div>
