@@ -25,7 +25,7 @@ export async function GET() {
     .map(
       (p) => `
   <url>
-    <loc>${siteUrl}/news/${p.slug}</loc>
+    <loc>${siteUrl}/news/${encodeURIComponent(p.slug)}</loc>
     <news:news>
       <news:publication>
         <news:name>त्रिवेणी पत्रिका</news:name>
