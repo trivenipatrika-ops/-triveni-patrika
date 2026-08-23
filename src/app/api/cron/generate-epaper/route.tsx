@@ -50,8 +50,11 @@ async function notifySubscribers(todayISO: string) {
         }
       })
     );
-  } catch (notifyError) {
-    // नोटिफिकेशन भेजने में गड़बड़ी हो तो भी अंक तो बन ही चुका है
+  } catch (notifyError: any) {
+    console.error(
+      "Epaper: notifySubscribers failed:",
+      notifyError?.message || notifyError
+    );
   }
 }
 
@@ -123,7 +126,11 @@ export async function GET(req: NextRequest) {
           rest={rest}
         />
       );
-    } catch (renderError) {
+    } catch (renderError: any) {
+      console.error(
+        "Epaper: main PDF render failed, using fallback:",
+        renderError?.message || renderError
+      );
       pdfBuffer = await renderToBuffer(
         <Document>
           <Page size="A4" style={{ padding: 40 }}>
@@ -177,6 +184,12 @@ export async function GET(req: NextRequest) {
       note: noteLine || undefined,
     });
   } catch (error: any) {
+    console.error(
+      "Epaper: main flow failed, trying fallback edition:",
+      error?.message || error,
+      error?.stack || ""
+    );
+
     try {
       const fallbackBuffer = await renderToBuffer(
         <Document>
@@ -206,6 +219,11 @@ export async function GET(req: NextRequest) {
       await notifySubscribers(todayISO);
       return NextResponse.json({ success: true, fallback: true, date: todayISO });
     } catch (fatalError: any) {
+      console.error(
+        "Epaper: fallback edition ALSO failed:",
+        fatalError?.message || fatalError,
+        fatalError?.stack || ""
+      );
       return NextResponse.json(
         { error: fatalError?.message || "अज्ञात गड़बड़ी" },
         { status: 500 }
