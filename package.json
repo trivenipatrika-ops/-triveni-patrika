@@ -1,35 +1,42 @@
-{
-  "name": "triveni-patrika",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "next": "15.5.7",
-    "react": "19.1.2",
-    "react-dom": "19.1.2",
-    "sanity": "^3.68.0",
-    "next-sanity": "^9.8.0",
-    "@sanity/image-url": "^1.1.0",
-    "@sanity/vision": "^3.68.0",
-    "@portabletext/react": "^3.2.0",
-    "@sparticuz/chromium": "^131.0.1",
-    "puppeteer-core": "^23.10.4",
-    "mongodb": "^6.10.0",
-    "web-push": "^3.6.7"
-  },
-  "devDependencies": {
-    "typescript": "^5.6.3",
-    "@types/node": "^22.9.0",
-    "@types/react": "^19.1.0",
-    "@types/react-dom": "^19.1.0",
-    "@types/web-push": "^3.6.4",
-    "tailwindcss": "^3.4.14",
-    "postcss": "^8.4.47",
-    "autoprefixer": "^10.4.20"
+self.addEventListener("install", () => {
+  self.skipWaiting();
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
+self.addEventListener("push", (event) => {
+  let data = { title: "त्रिवेणी पत्रिका", body: "एक नई खबर आई है", url: "/" };
+  try {
+    if (event.data) {
+      data = event.data.json();
+    }
+  } catch (e) {
+    // malformed payload, use default
   }
-}
+
+  const options = {
+    body: data.body,
+    icon: "/api/pwa-icon?size=192",
+    badge: "/api/pwa-icon?size=96",
+    data: { url: data.url || "/" },
+    tag: data.tag || undefined,
+    requireInteraction: !!data.requireInteraction,
+  };
+
+  event.waitUntil(self.registration.showNotification(data.title, options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = event.notification.data && event.notification.data.url ? event.notification.data.url : "/";
+  event.waitUntil(
+    self.clients.matchAll({ type: "window" }).then((clientList) => {
+      for (const c of clientList) {
+        if (c.url === url && "focus" in c) return c.focus();
+      }
+      if (self.clients.openWindow) return self.clients.openWindow(url);
+    })
+  );
+});
