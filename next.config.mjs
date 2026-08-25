@@ -6,9 +6,7 @@ const nextConfig = {
       { protocol: "https", hostname: "i.ytimg.com" }
     ]
   },
-  outputFileTracingIncludes: {
-    "/api/cron/generate-epaper": ["./node_modules/pdfkit/js/standard-fonts/**/*"]
-  }
+  serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"]
 };
 
 export default nextConfig;
