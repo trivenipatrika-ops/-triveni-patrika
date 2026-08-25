@@ -1,73 +1,42 @@
-import { ImageResponse } from "next/og";
-import { NextRequest } from "next/server";
+self.addEventListener("install", () => {
+  self.skipWaiting();
+});
 
-export const runtime = "nodejs";
-export const revalidate = 86400;
+self.addEventListener("activate", (event) => {
+  event.waitUntil(self.clients.claim());
+});
 
-async function fetchGoogleFontTTF(
-  family: string,
-  weight: number
-): Promise<ArrayBuffer> {
-  const res = await fetch(
-    `https://fonts.googleapis.com/css?family=${encodeURIComponent(family)}:${weight}`
-  );
-  const css = await res.text();
-  const match = css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.ttf)\)/);
-  if (!match) {
-    throw new Error(`Google Font not found: ${family} ${weight}`);
-  }
-  const fontRes = await fetch(match[1]);
-  return await fontRes.arrayBuffer();
-}
-
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const size = parseInt(searchParams.get("size") || "512", 10);
-
-  const fontData = await fetchGoogleFontTTF("Noto Sans Devanagari", 700);
-  const ringWidth = Math.max(4, Math.round(size * 0.035));
-
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#FAF8F2",
-        }}
-      >
-        <div
-          style={{
-            width: "88%",
-            height: "88%",
-            borderRadius: "50%",
-            background: "#8A1418",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            border: `${ringWidth}px solid #FAF8F2`,
-            boxShadow: "0 0 0 " + Math.max(2, Math.round(size * 0.012)) + "px #8A1418",
-          }}
-        >
-          <span
-            style={{
-              color: "#FFFFFF",
-              fontSize: size * 0.36,
-              fontFamily: "NotoDevanagari",
-            }}
-          >
-            त्रि
-          </span>
-        </div>
-      </div>
-    ),
-    {
-      width: size,
-      height: size,
-      fonts: [{ name: "NotoDevanagari", data: fontData, weight: 700 }],
+self.addEventListener("push", (event) => {
+  let data = { title: "त्रिवेणी पत्रिका", body: "एक नई खबर आई है", url: "/" };
+  try {
+    if (event.data) {
+      data = event.data.json();
     }
+  } catch (e) {
+    // malformed payload, use default
+  }
+
+  const options = {
+    body: data.body,
+    icon: "/api/pwa-icon?size=192",
+    badge: "/api/pwa-icon?size=96",
+    data: { url: data.url || "/" },
+    tag: data.tag || undefined,
+    requireInteraction: !!data.requireInteraction,
+  };
+
+  event.waitUntil(self.registration.showNotification(data.title, options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = event.notification.data && event.notification.data.url ? event.notification.data.url : "/";
+  event.waitUntil(
+    self.clients.matchAll({ type: "window" }).then((clientList) => {
+      for (const c of clientList) {
+        if (c.url === url && "focus" in c) return c.focus();
+      }
+      if (self.clients.openWindow) return self.clients.openWindow(url);
+    })
   );
-}
+});
