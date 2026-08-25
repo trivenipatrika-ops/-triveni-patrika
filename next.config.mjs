@@ -5,6 +5,9 @@ const nextConfig = {
       { protocol: "https", hostname: "cdn.sanity.io" },
       { protocol: "https", hostname: "i.ytimg.com" }
     ]
+  },
+  outputFileTracingIncludes: {
+    "/api/cron/generate-epaper": ["./node_modules/pdfkit/js/standard-fonts/**/*"]
   }
 };
 
