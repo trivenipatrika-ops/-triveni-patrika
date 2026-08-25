@@ -14,8 +14,6 @@ function getClientPromise(): Promise<MongoClient> {
   if (!clientPromise) {
     const client = new MongoClient(uri);
     clientPromise = client.connect().catch((err) => {
-      // जुड़ने में गड़बड़ी आए तो अगली बार दोबारा कोशिश हो सके,
-      // और यह गड़बड़ी पूरे प्रोग्राम को क्रैश न करे
       clientPromise = null;
       throw err;
     });
@@ -23,8 +21,6 @@ function getClientPromise(): Promise<MongoClient> {
 
   return clientPromise;
 }
-
-export default getClientPromise();
 
 export async function getDb() {
   const client = await getClientPromise();
