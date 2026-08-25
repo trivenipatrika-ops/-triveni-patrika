@@ -17,7 +17,8 @@
     "@sanity/image-url": "^1.1.0",
     "@sanity/vision": "^3.68.0",
     "@portabletext/react": "^3.2.0",
-    "@react-pdf/renderer": "^4.1.6",
+    "@sparticuz/chromium": "^131.0.1",
+    "puppeteer-core": "^23.10.4",
     "mongodb": "^6.10.0",
     "web-push": "^3.6.7"
   },
