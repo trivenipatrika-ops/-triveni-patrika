@@ -21,6 +21,8 @@ self.addEventListener("push", (event) => {
     icon: "/api/pwa-icon?size=192",
     badge: "/api/pwa-icon?size=96",
     data: { url: data.url || "/" },
+    tag: data.tag || undefined,
+    requireInteraction: !!data.requireInteraction,
   };
 
   event.waitUntil(self.registration.showNotification(data.title, options));
