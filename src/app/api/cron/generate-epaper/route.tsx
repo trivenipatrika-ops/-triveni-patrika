@@ -1,30 +1,49 @@
 import { NextRequest, NextResponse } from "next/server";
-import { renderToBuffer, Document, Page, Text } from "@react-pdf/renderer";
 import { groq } from "next-sanity";
 import { client } from "@/sanity/client";
 import { writeClient } from "@/sanity/writeClient";
 import { getDb } from "@/lib/mongodb";
 import webpush from "@/lib/webPush";
-import { EpaperDocument, ensureEpaperFonts } from "@/lib/generateEpaperPdf";
+import { urlFor } from "@/sanity/image";
+import { buildEpaperHtml, renderEpaperPdf, type EpaperPost } from "@/lib/generateEpaperPdf";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-type LightPost = {
+const BRAND_NAME = "त्रिवेणी पत्रिका";
+const TAGLINE = "सच्ची खबर, सीधी बात";
+const EDITION = "प्रयागराज संस्करण";
+
+type RawPost = {
   title: string;
   excerpt?: string;
   category?: { title: string };
+  mainImage?: any;
+  isBreaking?: boolean;
 };
 
-async function fetchRecentPosts(hours: number): Promise<LightPost[]> {
+async function fetchRecentPosts(hours: number): Promise<RawPost[]> {
   const since = new Date();
   since.setHours(since.getHours() - hours);
   return client.fetch(
-    groq`*[_type == "post" && publishedAt >= $since] | order(publishedAt desc){
-      title, excerpt, category->{title}
+    groq`*[_type == "post" && publishedAt >= $since] | order(isBreaking desc, isFeatured desc, publishedAt desc){
+      title, excerpt, mainImage, isBreaking, category->{title}
     }`,
     { since: since.toISOString() }
   );
+}
+
+function toEpaperPost(p: RawPost, withImage = false): EpaperPost {
+  return {
+    title: p.title,
+    excerpt: p.excerpt,
+    categoryTitle: p.category?.title,
+    isBreaking: p.isBreaking,
+    imageUrl:
+      withImage && p.mainImage
+        ? urlFor(p.mainImage).width(700).height(420).fit("crop").url()
+        : undefined,
+  };
 }
 
 async function notifySubscribers(todayISO: string) {
@@ -37,6 +56,8 @@ async function notifySubscribers(todayISO: string) {
       title: "📰 आज का ई-पेपर तैयार है",
       body: "त्रिवेणी पत्रिका का आज का पूरा अंक पढ़ने के लिए टैप करें",
       url: `${siteUrl}/epaper/${todayISO}`,
+      tag: "epaper-daily",
+      requireInteraction: true,
     });
 
     await Promise.all(
@@ -58,6 +79,19 @@ async function notifySubscribers(todayISO: string) {
   }
 }
 
+function fallbackHtml(todayLabel: string) {
+  return buildEpaperHtml({
+    brandName: BRAND_NAME,
+    tagline: TAGLINE,
+    dateLabel: todayLabel,
+    noteLine: "(सीमित संस्करण)",
+    edition: EDITION,
+    breakingTitles: [],
+    lead: { title: `${BRAND_NAME} — ${todayLabel}` },
+    rest: [],
+  });
+}
+
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -72,9 +106,7 @@ export async function GET(req: NextRequest) {
   });
 
   try {
-    await ensureEpaperFonts();
-
-    let posts: LightPost[] = await fetchRecentPosts(24);
+    let posts: RawPost[] = await fetchRecentPosts(24);
     let noteLine = "";
 
     if (posts.length === 0) {
@@ -86,8 +118,8 @@ export async function GET(req: NextRequest) {
 
     if (posts.length === 0) {
       posts = await client.fetch(
-        groq`*[_type == "post"] | order(publishedAt desc)[0...10]{
-          title, excerpt, category->{title}
+        groq`*[_type == "post"] | order(isBreaking desc, isFeatured desc, publishedAt desc)[0...10]{
+          title, excerpt, mainImage, isBreaking, category->{title}
         }`
       );
       if (posts.length > 0) {
@@ -95,20 +127,17 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    let lead: { title: string; excerpt?: string; categoryTitle?: string };
-    let rest: { title: string; excerpt?: string; categoryTitle?: string }[] = [];
+    let lead: EpaperPost;
+    let rest: EpaperPost[] = [];
+    let breakingTitles: string[] = [];
 
     if (posts.length > 0) {
-      lead = {
-        title: posts[0].title,
-        excerpt: posts[0].excerpt,
-        categoryTitle: posts[0].category?.title,
-      };
-      rest = posts.slice(1).map((p) => ({
-        title: p.title,
-        excerpt: p.excerpt,
-        categoryTitle: p.category?.title,
-      }));
+      lead = toEpaperPost(posts[0], true);
+      rest = posts.slice(1).map((p) => toEpaperPost(p));
+      breakingTitles = posts
+        .filter((p) => p.isBreaking)
+        .slice(0, 6)
+        .map((p) => p.title);
     } else {
       lead = {
         title: "त्रिवेणी पत्रिका जल्द शुरू हो रही है",
@@ -119,25 +148,23 @@ export async function GET(req: NextRequest) {
 
     let pdfBuffer: Buffer;
     try {
-      pdfBuffer = await renderToBuffer(
-        <EpaperDocument
-          dateLabel={`${todayLabel} ${noteLine}`.trim()}
-          lead={lead}
-          rest={rest}
-        />
-      );
+      const html = buildEpaperHtml({
+        brandName: BRAND_NAME,
+        tagline: TAGLINE,
+        dateLabel: todayLabel,
+        noteLine: noteLine || undefined,
+        edition: EDITION,
+        breakingTitles,
+        lead,
+        rest,
+      });
+      pdfBuffer = await renderEpaperPdf(html);
     } catch (renderError: any) {
       console.error(
         "Epaper: main PDF render failed, using fallback:",
         renderError?.message || renderError
       );
-      pdfBuffer = await renderToBuffer(
-        <Document>
-          <Page size="A4" style={{ padding: 40 }}>
-            <Text>{`त्रिवेणी पत्रिका - ${todayLabel}`}</Text>
-          </Page>
-        </Document>
-      );
+      pdfBuffer = await renderEpaperPdf(fallbackHtml(todayLabel));
     }
 
     const uploadedAsset = await writeClient.assets.upload("file", pdfBuffer, {
@@ -191,21 +218,11 @@ export async function GET(req: NextRequest) {
     );
 
     try {
-      const fallbackBuffer = await renderToBuffer(
-        <Document>
-          <Page size="A4" style={{ padding: 40 }}>
-            <Text>{`त्रिवेणी पत्रिका - ${todayLabel}`}</Text>
-          </Page>
-        </Document>
-      );
-      const uploadedAsset = await writeClient.assets.upload(
-        "file",
-        fallbackBuffer,
-        {
-          filename: `triveni-patrika-${todayISO}-fallback.pdf`,
-          contentType: "application/pdf",
-        }
-      );
+      const buffer = await renderEpaperPdf(fallbackHtml(todayLabel));
+      const uploadedAsset = await writeClient.assets.upload("file", buffer, {
+        filename: `triveni-patrika-${todayISO}-fallback.pdf`,
+        contentType: "application/pdf",
+      });
       await writeClient.create({
         _type: "epaper",
         date: todayISO,
