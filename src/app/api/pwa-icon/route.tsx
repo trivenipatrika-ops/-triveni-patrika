@@ -20,11 +20,13 @@ async function fetchGoogleFontTTF(
   return await fontRes.arrayBuffer();
 }
 
+const RED = "#B7121B";
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const size = parseInt(searchParams.get("size") || "512", 10);
 
-  const fontData = await fetchGoogleFontTTF("Noto Sans Devanagari", 700);
+  const fontBold = await fetchGoogleFontTTF("Noto Sans Devanagari", 700);
   const radius = Math.round(size * 0.22);
 
   return new ImageResponse(
@@ -34,60 +36,112 @@ export async function GET(req: NextRequest) {
           width: "100%",
           height: "100%",
           display: "flex",
-          position: "relative",
-          background: "#FAF8F2",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#FFFFFF",
           borderRadius: radius,
           overflow: "hidden",
+          padding: size * 0.05,
         }}
       >
+        {/* red circular emblem with a mini folded-newspaper glyph inside */}
         <div
           style={{
-            width: "100%",
-            height: "100%",
+            width: size * 0.36,
+            height: size * 0.36,
+            borderRadius: "50%",
+            background: RED,
             display: "flex",
-            flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
+            marginBottom: size * 0.02,
           }}
         >
-          <span
-            style={{
-              color: "#8A1418",
-              fontSize: size * 0.27,
-              fontFamily: "NotoDevanagari",
-            }}
-          >
-            त्रिवेणी
-          </span>
           <div
             style={{
-              width: size * 0.42,
-              height: Math.max(2, Math.round(size * 0.015)),
-              background: "#8A1418",
-              marginTop: size * 0.03,
+              width: size * 0.22,
+              height: size * 0.17,
+              background: "#FFFFFF",
+              borderRadius: size * 0.012,
               display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              padding: size * 0.014,
+              transform: "rotate(-10deg)",
             }}
-          />
+          >
+            <div
+              style={{
+                width: "85%",
+                height: Math.max(2, size * 0.013),
+                background: RED,
+                marginBottom: size * 0.01,
+                display: "flex",
+              }}
+            />
+            <div
+              style={{
+                width: "65%",
+                height: Math.max(2, size * 0.009),
+                background: "#999999",
+                marginBottom: size * 0.008,
+                display: "flex",
+              }}
+            />
+            <div
+              style={{
+                width: "75%",
+                height: Math.max(2, size * 0.009),
+                background: "#999999",
+                marginBottom: size * 0.008,
+                display: "flex",
+              }}
+            />
+            <div
+              style={{
+                width: "55%",
+                height: Math.max(2, size * 0.009),
+                background: "#999999",
+                display: "flex",
+              }}
+            />
+          </div>
         </div>
+
+        {/* brand name */}
+        <span
+          style={{
+            color: "#111111",
+            fontSize: size * 0.21,
+            fontFamily: "NotoDevanagari",
+            lineHeight: 1,
+          }}
+        >
+          त्रिवेणी
+        </span>
+
+        {/* red pill with sub-name */}
         <div
           style={{
-            position: "absolute",
-            left: -size * 0.28,
-            bottom: size * 0.1,
-            width: size * 1.1,
-            height: size * 0.23,
-            background: "#8A1418",
+            marginTop: size * 0.035,
+            background: RED,
+            borderRadius: size * 0.07,
+            paddingLeft: size * 0.09,
+            paddingRight: size * 0.09,
+            paddingTop: size * 0.02,
+            paddingBottom: size * 0.02,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            transform: "rotate(-14deg)",
           }}
         >
           <span
             style={{
               color: "#FFFFFF",
-              fontSize: size * 0.145,
+              fontSize: size * 0.135,
               fontFamily: "NotoDevanagari",
+              lineHeight: 1,
             }}
           >
             पत्रिका
@@ -98,7 +152,7 @@ export async function GET(req: NextRequest) {
     {
       width: size,
       height: size,
-      fonts: [{ name: "NotoDevanagari", data: fontData, weight: 700 }],
+      fonts: [{ name: "NotoDevanagari", data: fontBold, weight: 700 }],
     }
   );
 }
