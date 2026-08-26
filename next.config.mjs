@@ -6,7 +6,10 @@ const nextConfig = {
       { protocol: "https", hostname: "i.ytimg.com" }
     ]
   },
-  serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"]
+  serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
+  outputFileTracingIncludes: {
+    "/api/cron/generate-epaper": ["./node_modules/@sparticuz/chromium/bin/**/*"]
+  }
 };
 
 export default nextConfig;
