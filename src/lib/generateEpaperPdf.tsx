@@ -105,6 +105,43 @@ export function buildEpaperHtml({
 }
 
 export async function renderEpaperPdf(html: string): Promise<Buffer> {
+  const remoteKey = process.env.BROWSERLESS_API_KEY;
+
+  if (remoteKey) {
+    // Production-grade path: a managed headless-browser service renders the
+    // PDF over HTTP. Nothing about Chromium's own binary has to ship inside
+    // our function, so none of the serverless packaging issues apply here.
+    // This is the approach most production teams use instead of bundling
+    // Chromium directly into a serverless function.
+    const res = await fetch(
+      `https://chrome.browserless.io/pdf?token=${remoteKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          html,
+          options: {
+            format: "A4",
+            printBackground: true,
+            margin: { top: "0", bottom: "0", left: "0", right: "0" },
+          },
+        }),
+      }
+    );
+    if (!res.ok) {
+      throw new Error(
+        `Browserless PDF render failed: ${res.status} ${await res.text()}`
+      );
+    }
+    const arrayBuffer = await res.arrayBuffer();
+    return Buffer.from(arrayBuffer);
+  }
+
+  // Fallback: render with a local headless Chromium bundled via
+  // @sparticuz/chromium. Requires next.config.mjs to explicitly trace in
+  // Chromium's binary files (see outputFileTracingIncludes) — Next.js does
+  // not detect that dependency on its own since it's loaded from disk at
+  // runtime, not via a normal import.
   const executablePath = await chromium.executablePath();
   const browser = await puppeteer.launch({
     args: chromium.args,
