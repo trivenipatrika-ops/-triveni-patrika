@@ -46,10 +46,23 @@ function toEpaperPost(p: RawPost, withImage = false): EpaperPost {
   };
 }
 
+async function withRetry<T>(fn: () => Promise<T>, label: string): Promise<T> {
+  try {
+    return await fn();
+  } catch (err: any) {
+    console.error(`Epaper: ${label} failed on first try, retrying:`, err?.message || err);
+    await new Promise((r) => setTimeout(r, 800));
+    return await fn();
+  }
+}
+
 async function notifySubscribers(todayISO: string) {
   try {
-    const db = await getDb();
-    const subscribers = await db.collection("subscribers").find({}).toArray();
+    const db = await withRetry(() => getDb(), "MongoDB connect");
+    const subscribers = await withRetry(
+      () => db.collection("subscribers").find({}).toArray(),
+      "MongoDB subscribers fetch"
+    );
     const siteUrl =
       process.env.NEXT_PUBLIC_SITE_URL || "https://triveni-patrika.vercel.app";
     const payload = JSON.stringify({
