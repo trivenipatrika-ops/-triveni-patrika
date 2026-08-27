@@ -13,6 +13,8 @@ export const maxDuration = 60;
 const BRAND_NAME = "त्रिवेणी पत्रिका";
 const TAGLINE = "सच्ची खबर, सीधी बात";
 const EDITION = "प्रयागराज संस्करण";
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://triveni-patrika.vercel.app";
 
 type RawPost = {
   title: string;
@@ -63,12 +65,10 @@ async function notifySubscribers(todayISO: string) {
       () => db.collection("subscribers").find({}).toArray(),
       "MongoDB subscribers fetch"
     );
-    const siteUrl =
-      process.env.NEXT_PUBLIC_SITE_URL || "https://triveni-patrika.vercel.app";
     const payload = JSON.stringify({
       title: "📰 आज का ई-पेपर तैयार है",
       body: "त्रिवेणी पत्रिका का आज का पूरा अंक पढ़ने के लिए टैप करें",
-      url: `${siteUrl}/epaper/${todayISO}`,
+      url: `${SITE_URL}/epaper/${todayISO}`,
       tag: "epaper-daily",
       requireInteraction: true,
     });
@@ -102,6 +102,7 @@ function fallbackHtml(todayLabel: string) {
     breakingTitles: [],
     lead: { title: `${BRAND_NAME} — ${todayLabel}` },
     rest: [],
+    siteUrl: SITE_URL,
   });
 }
 
@@ -170,6 +171,7 @@ export async function GET(req: NextRequest) {
         breakingTitles,
         lead,
         rest,
+        siteUrl: SITE_URL,
       });
       pdfBuffer = await renderEpaperPdf(html);
     } catch (renderError: any) {
