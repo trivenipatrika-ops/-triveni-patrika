@@ -8,7 +8,8 @@ const nextConfig = {
   },
   serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
   outputFileTracingIncludes: {
-    "/api/cron/generate-epaper": ["./node_modules/@sparticuz/chromium/bin/**/*"]
+    "/api/cron/generate-epaper": ["./node_modules/@sparticuz/chromium/bin/**/*"],
+    "/api/pwa-icon": ["./node_modules/@sparticuz/chromium/bin/**/*"]
   }
 };
 
